@@ -4,6 +4,7 @@ class ProductService {
   constructor() {
     this.productRepository = new ProductRepository();
   }
+
   // 상품 저장
   async createProduct(name, price, type) {
     const typeLower = type.toLowerCase();
@@ -20,6 +21,24 @@ class ProductService {
       typeLower
     );
     return product;
+  }
+
+  // 상품 전체 조회
+  async getAllProducts() {
+    const products = await this.productRepository.getAllProducts();
+    if (!products || products.length === 0) {
+      throw new Error('Product does not exist.');
+    }
+    return products;
+  }
+
+  // 상품 타입별 조회
+  async getTypeProducts(type) {
+    const products = await this.productRepository.getTypeProducts(type);
+    if (!products || products.length === 0) {
+      throw new Error('Product does not exist.');
+    }
+    return products;
   }
 }
 

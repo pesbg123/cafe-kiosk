@@ -26,7 +26,34 @@ class ProductController {
       const errorResponse = {
         errorMessage: error.message,
       };
-      next(errorResponse); // 에러 객체를 다음 미들웨어로 전달합니다.}
+      next(errorResponse); // 에러 객체를 다음 미들웨어로 전달합니다.
+    }
+  }
+
+  // 상품 전체 조회
+  async getAllProducts(req, res, next) {
+    try {
+      const products = await this.productService.getAllProducts();
+      res.status(200).json(products);
+    } catch (error) {
+      const errorResponse = {
+        errorMessage: error.message,
+      };
+      next(errorResponse); // 에러 객체를 다음 미들웨어로 전달합니다.
+    }
+  }
+
+  // 상품 타입별 조회
+  async getTypeProducts(req, res, next) {
+    try {
+      const { type } = req.params;
+      const products = await this.productService.getTypeProducts(type);
+      res.status(200).json(products);
+    } catch (error) {
+      const errorResponse = {
+        errorMessage: error.message,
+      };
+      next(errorResponse); // 에러 객체를 다음 미들웨어로 전달합니다.
     }
   }
 }
