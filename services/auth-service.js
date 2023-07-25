@@ -69,16 +69,15 @@ class AuthService {
     };
     let newAccessToken;
     let newRefreshToken;
+    const thisUser = await this.authRepository.findByUserName(username); // 닉네임 기준 사용자 정보 조회
+
+    // 회원이 존재하지 않을때
+    if (!thisUser) {
+      throw new Error('The user does not exist.');
+    }
 
     // 토큰이 없을때
     if (!refreshToken || !accessToken) {
-      const thisUser = await this.authRepository.findByUserName(username); // 닉네임 기준 사용자 정보 조회
-
-      // 회원이 존재하지 않을때
-      if (!thisUser) {
-        throw new Error('The user does not exist.');
-      }
-
       // 비밀번호 디코딩 후 유효성 검증
       const comparePassword = await bcrypt.compare(password, thisUser.password);
       if (!comparePassword) {
