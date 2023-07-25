@@ -16,6 +16,7 @@ app.use('/api', [authRouter]);
 app.use((req, res, next) => {
   res.status(404).send('The API request path is incorrect.');
 });
+
 // 전역 에러 캐치 미들웨어
 app.use((error, req, res, next) => {
   // status 코드와 에러 메세지를 포함하여 응답합니다.
