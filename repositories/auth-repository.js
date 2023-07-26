@@ -15,6 +15,12 @@ class AuthRepository {
     });
     return { message: 'Sign up successful!' };
   }
+
+  // admin인지 구분
+  async adminCheck(userId) {
+    const adminCheck = await Users.findOne({ where: { userId } });
+    return adminCheck.is_admin;
+  }
 }
 
 module.exports = AuthRepository;

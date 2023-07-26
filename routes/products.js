@@ -23,4 +23,24 @@ router.get(
   productController.getTypeProducts.bind(productController)
 );
 
+// 상품 수정
+router.patch(
+  '/products/:productId',
+  authMiddleware,
+  productController.updateProduct.bind(productController)
+);
+
+// 상품 삭제 확인
+router.delete(
+  '/products/:productId/delete',
+  authMiddleware,
+  productController.checkProductQuantity.bind(productController)
+);
+
+router.delete(
+  '/products/:productId/:confirm',
+  authMiddleware,
+  productController.confirmProductDelete.bind(productController)
+);
+
 module.exports = router;

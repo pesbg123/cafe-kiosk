@@ -28,18 +28,14 @@ const authMiddleware = async (req, res, next) => {
   const { accessToken, refreshToken } = req.cookies;
   // 액세스 토큰과 리프레시 토큰이 없는 경우
   if (!accessToken) {
-    return res
-      .status(400)
-      .json({
-        errorMessage: 'AccessToken does not exist Re-login is required.',
-      });
+    return res.status(400).json({
+      errorMessage: 'AccessToken does not exist Re-login is required.',
+    });
   }
   if (!refreshToken) {
-    return res
-      .status(400)
-      .json({
-        errorMessage: 'RefreshToken does not exist Re-login is required.',
-      });
+    return res.status(400).json({
+      errorMessage: 'RefreshToken does not exist Re-login is required.',
+    });
   }
 
   try {
@@ -50,11 +46,14 @@ const authMiddleware = async (req, res, next) => {
       const user = await Users.findOne({
         where: { userId: decodedAccessToken.userId },
       });
+
       // 유효하지 않은 사용자인 경우
       if (!user) {
         return res.status(400).json({ errorMessage: 'Not a valid user.' });
       }
+
       res.locals.user = user;
+
       return next();
     } else {
       return res
