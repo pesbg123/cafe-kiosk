@@ -37,6 +37,7 @@ router.delete(
   productController.checkProductQuantity.bind(productController)
 );
 
+// 상품 삭제 승인
 router.delete(
   '/products/:productId/:confirm',
   authMiddleware,

@@ -69,13 +69,24 @@ class AuthService {
     };
     let newAccessToken;
     let newRefreshToken;
+
     const thisUser = await this.authRepository.findByUserName(username); // 닉네임 기준 사용자 정보 조회
 
-    // 회원이 존재하지 않을때
-    if (!thisUser) {
-      throw new Error('The user does not exist.');
+    // nickname과 일치하는 유저가 없을 경우
+    if (thisUser === null) {
+      throw new Error('Password or username does not match.');
     }
 
+    // db에서 받은 유저 패스워드랑 일치하는지 검증
+    const MatchPassword = await bcrypt.compare(
+      password,
+      thisUser.dataValues.password
+    );
+
+    // password를 잘못 입력했을때
+    if (!MatchPassword) {
+      throw new Error('Password or username does not match.');
+    }
     // 토큰이 없을때
     if (!refreshToken || !accessToken) {
       // 비밀번호 디코딩 후 유효성 검증
@@ -83,7 +94,6 @@ class AuthService {
       if (!comparePassword) {
         throw new Error('The password does not match.');
       }
-
       // 액세스 토큰과 리프레쉬 토큰 발급 + 쿠키에 저장 + 응답
       newAccessToken = generateAccessToken(thisUser.userId);
       newRefreshToken = generateRefreshToken(thisUser.userId);

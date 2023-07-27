@@ -86,6 +86,8 @@ class ProductService {
   // 삭제 확인 받기
   async confirmProductDelete(userId, productId, confirm) {
     if (confirm.toLowerCase() === 'yes') {
+      // 상품이 존재하지 않을경우
+      await this.checkProductQuantity(userId, productId);
       return await this.deleteProduct(userId, productId);
     }
     return { message: 'Product deletion is canceled.' };
@@ -95,6 +97,7 @@ class ProductService {
   async deleteProduct(userId, productId) {
     // admin인지 확인
     const adminCheck = await this.authRepository.adminCheck(userId);
+
     if (!adminCheck) {
       throw new Error('You are not an admin');
     }

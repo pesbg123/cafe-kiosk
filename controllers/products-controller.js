@@ -16,9 +16,16 @@ class ProductController {
           .json({ errorMessage: 'Please enter the name of the product' });
       }
       if (!type) {
+        // type이 비어있는지 확인
         return res
           .status(400)
           .json({ errorMessage: 'Please enter the type of the product' });
+      }
+      if (price < 0) {
+        // 가격이 음수인지 확인
+        return res
+          .status(400)
+          .json({ errorMessage: 'Please enter a valid price.' });
       }
       // createProduct() 메서드 호출 후 리턴값 할당
       const product = await this.productService.createProduct(
@@ -68,12 +75,7 @@ class ProductController {
       const { userId } = res.locals.user;
       const { productId } = req.params;
       const { name, price } = req.body;
-      // 데이터 유효성 검증
-      if (!name || !price) {
-        return res
-          .status(400)
-          .json({ errorMessage: 'Please enter the name and price.' });
-      }
+      // 기존에 이미 상품을 등록했기에, 가격만 검증
       if (price < 0) {
         return res
           .status(400)
