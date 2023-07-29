@@ -7,16 +7,17 @@ class AuthController {
   // 회원가입
   async signup(req, res, next) {
     try {
-      const { username, password, confirmPassword, is_admin } = req.body; // body에서 회원가입에 필요한 정보 받아오기
+      const { userName, password, confirmPassword, is_admin } = req.body; // body에서 회원가입에 필요한 정보 받아오기
       // 데이터가 비어있는지 확인
-      if (!username || !password || !confirmPassword) {
-        res
-          .status(400)
-          .json({ errorMessage: 'Please enter your username or password' });
+      if (!userName || !password || !confirmPassword) {
+        res.status(400).json({
+          errorMessage:
+            'Please enter your userName, password, and confirm password',
+        });
       }
       // signup메서드 호출 후 리턴값 message 변수에 할당
       const message = await this.authService.signup(
-        username,
+        userName,
         password,
         confirmPassword,
         is_admin
@@ -36,11 +37,11 @@ class AuthController {
   // 로그인
   async login(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { userName, password } = req.body;
       const { refreshToken, accessToken } = req.cookies;
 
       await this.authService.login(
-        username,
+        userName,
         password,
         refreshToken,
         accessToken,

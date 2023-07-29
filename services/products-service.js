@@ -8,18 +8,22 @@ class ProductService {
   }
 
   // 상품 저장
-  async createProduct(name, price, type) {
+  async createProduct(productName, productPrice, type) {
     const typeLower = type.toLowerCase();
     // enum 겁증 array
     const types = ['coffee', 'juice', 'food'];
-    // 검증
     if (!types.includes(typeLower)) {
       throw new Error('Please provide a valid type.');
     }
+    // 이미 존재하는 상품인지 검증
+    const existProduct = await this.productRepository.existProduct(productName);
+    if (existProduct) {
+      throw new Error(`${existProduct.dataValues.productName} already exists`);
+    }
     // createProduct() 메서드 호출 후 리턴값 할당
     const product = await this.productRepository.createProduct(
-      name,
-      price,
+      productName,
+      productPrice,
       typeLower
     );
     return product;
@@ -44,23 +48,17 @@ class ProductService {
   }
 
   // 상품 수정
-  async updateProduct(productId, name, price, userId) {
-    // admin인지 확인
-    const adminCheck = await this.authRepository.adminCheck(userId);
-
-    if (!adminCheck) {
-      throw new Error('You are not an admin');
-    }
+  async updateProduct(productId, productName, productPrice) {
     const updateCheck = await this.productRepository.updateProduct(
       productId,
-      name,
-      price
+      productName,
+      productPrice
     );
     return updateCheck;
   }
 
   // 정말 삭제할건지 물어보는 api
-  async checkProductQuantity(userId, productId) {
+  async checkProductQuantity(productId) {
     const checkProductQuantity = await this.productRepository.existenceProduct(
       productId
     );
@@ -72,7 +70,7 @@ class ProductService {
 
     if (!checkProductQuantity.quantity) {
       // 남아있는 수량이 없을시 즉시 삭제
-      return await this.deleteProduct(userId, productId);
+      return await this.deleteProduct(productId);
     }
 
     if (checkProductQuantity) {
@@ -84,23 +82,17 @@ class ProductService {
   }
 
   // 삭제 확인 받기
-  async confirmProductDelete(userId, productId, confirm) {
+  async confirmProductDelete(productId, confirm) {
     if (confirm.toLowerCase() === 'yes') {
       // 상품이 존재하지 않을경우
-      await this.checkProductQuantity(userId, productId);
-      return await this.deleteProduct(userId, productId);
+      await this.checkProductQuantity(productId);
+      return await this.deleteProduct(productId);
     }
     return { message: 'Product deletion is canceled.' };
   }
 
   // 상품 즉시 삭제
-  async deleteProduct(userId, productId) {
-    // admin인지 확인
-    const adminCheck = await this.authRepository.adminCheck(userId);
-
-    if (!adminCheck) {
-      throw new Error('You are not an admin');
-    }
+  async deleteProduct(productId) {
     // 삭제
     const message = await this.productRepository.deleteProduct(productId);
     return message;

@@ -8,12 +8,12 @@ class ProductController {
   // 상품 추가
   async createProduct(req, res, next) {
     try {
-      const { name, price, type } = req.body;
-      // name이 비어있는지 확인
-      if (!name) {
-        return res
-          .status(400)
-          .json({ errorMessage: 'Please enter the name of the product' });
+      const { productName, productPrice, type } = req.body;
+      // productName이 비어있는지 확인
+      if (!productName) {
+        return res.status(400).json({
+          errorMessage: 'Please enter the productName of the product',
+        });
       }
       if (!type) {
         // type이 비어있는지 확인
@@ -21,16 +21,16 @@ class ProductController {
           .status(400)
           .json({ errorMessage: 'Please enter the type of the product' });
       }
-      if (price < 0) {
+      if (productPrice < 0) {
         // 가격이 음수인지 확인
         return res
           .status(400)
-          .json({ errorMessage: 'Please enter a valid price.' });
+          .json({ errorMessage: 'Please enter a valid productPrice.' });
       }
       // createProduct() 메서드 호출 후 리턴값 할당
       const product = await this.productService.createProduct(
-        name,
-        price,
+        productName,
+        productPrice,
         type
       );
       res.status(200).json({ message: 'Success', product });
@@ -72,20 +72,18 @@ class ProductController {
   // 상품 수정
   async updateProduct(req, res, next) {
     try {
-      const { userId } = res.locals.user;
       const { productId } = req.params;
-      const { name, price } = req.body;
+      const { productName, productPrice } = req.body;
       // 기존에 이미 상품을 등록했기에, 가격만 검증
-      if (price < 0) {
+      if (productPrice < 0) {
         return res
           .status(400)
-          .json({ errorMessage: 'Please enter a valid price.' });
+          .json({ errorMessage: 'Please enter a valid productPrice.' });
       }
       const updateCheck = await this.productService.updateProduct(
         productId,
-        name,
-        price,
-        userId
+        productName,
+        productPrice
       );
       res.status(200).json({ message: 'Update successful', updateCheck });
     } catch (error) {
@@ -99,12 +97,8 @@ class ProductController {
   // 상품의 수량이 남아있다면 확인 메세지를 응답하고, 아니면 바로 삭제
   async checkProductQuantity(req, res, next) {
     try {
-      const { userId } = res.locals.user;
       const { productId } = req.params;
-      const message = await this.productService.checkProductQuantity(
-        userId,
-        productId
-      );
+      const message = await this.productService.checkProductQuantity(productId);
       res.status(200).json({ message: message.message });
     } catch (error) {
       console.log(error);
@@ -119,10 +113,8 @@ class ProductController {
   // 삭제 확인
   async confirmProductDelete(req, res, next) {
     try {
-      const { userId } = res.locals.user;
       const { productId, confirm } = req.params;
       const message = await this.productService.confirmProductDelete(
-        userId,
         productId,
         confirm
       );

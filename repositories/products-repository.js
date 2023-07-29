@@ -1,12 +1,11 @@
 const { Products } = require('../models');
-const products = require('../models/products');
 
 class ProductRepository {
   // 상품 저장
-  async createProduct(name, price, type) {
+  async createProduct(productName, productPrice, type) {
     const product = await Products.create({
-      name,
-      price,
+      productName,
+      productPrice,
       type,
     });
     return product;
@@ -27,18 +26,24 @@ class ProductRepository {
     return products;
   }
 
-  // 상품 개수 조회
+  // productName 기준 상품 조회
+  async existProduct(productName) {
+    const product = await Products.findOne({ where: { productName } });
+    return product;
+  }
+
+  // productId 기준 상품 조회
   async existenceProduct(productId) {
     const product = await Products.findOne({ where: { productId } });
     return product;
   }
 
   // 상품 수정
-  async updateProduct(productId, name, price) {
+  async updateProduct(productId, productName, productPrice) {
     const updateCheck = await Products.update(
       {
-        name,
-        price,
+        productName,
+        productPrice,
       },
       { where: { productId } }
     );

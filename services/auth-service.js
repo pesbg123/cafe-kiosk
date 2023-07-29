@@ -10,13 +10,13 @@ class AuthService {
     this.authRepository = new AuthRepository();
   }
   // 회원가입
-  async signup(username, password, confirmPassword, is_admin) {
-    const usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
+  async signup(userName, password, confirmPassword, is_admin) {
+    const userNameRegex = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
     const passwordRegex = /^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
-    // 정규식을 사용해 username이 올바른 양식인지 검증 (글자와 숫자 포함)
-    if (!usernameRegex.test(username)) {
+    // 정규식을 사용해 userName이 올바른 양식인지 검증 (글자와 숫자 포함)
+    if (!userNameRegex.test(userName)) {
       throw new Error(
-        'The username must contain at least one letter and one number.'
+        'The userName must contain at least one letter and one number.'
       );
     }
     // 정규식을 사용해 password가 올바른 양식인지 검증 (4글자 이상 특수기호 포함)
@@ -29,23 +29,23 @@ class AuthService {
     if (password !== confirmPassword) {
       throw new Error('The password and confirm password do not match.');
     }
-    // username이 password안에 포함되는지 검증
-    if (username.includes(password) || password.includes(username)) {
-      throw new Error('The username cannot be included in the password.');
+    // userName이 password안에 포함되는지 검증
+    if (userName.includes(password) || password.includes(userName)) {
+      throw new Error('The userName cannot be included in the password.');
     }
-    // username 중복을 위해 db에 조회
-    const DuplicateUserName = await this.authRepository.findByUserName(
-      username
+    // userName 중복을 위해 db에 조회
+    const DuplicateuserName = await this.authRepository.findByuserName(
+      userName
     );
-    // username 유효성 검증
-    if (DuplicateUserName) {
-      throw new Error('The username is already in use.');
+    // userName 유효성 검증
+    if (DuplicateuserName) {
+      throw new Error('The userName is already in use.');
     }
     // 비밀번호 암호화
     const EncryptionPassword = await bcrypt.hash(password, saltRounds);
     // 유저를 저장하기 위해 createUser메서드 호출하는 동시에 변수에 할당
     const message = await this.authRepository.createUser(
-      username,
+      userName,
       EncryptionPassword,
       is_admin
     );
@@ -53,7 +53,7 @@ class AuthService {
   }
 
   // 로그인
-  async login(username, password, refreshToken, accessToken, res) {
+  async login(userName, password, refreshToken, accessToken, res) {
     // 액세스 토큰 발급
     const generateAccessToken = (userId) => {
       return jwt.sign({ userId: userId }, env.ACCESS_TOKEN_KEY, {
@@ -70,11 +70,11 @@ class AuthService {
     let newAccessToken;
     let newRefreshToken;
 
-    const thisUser = await this.authRepository.findByUserName(username); // 닉네임 기준 사용자 정보 조회
+    const thisUser = await this.authRepository.findByuserName(userName); // 닉네임 기준 사용자 정보 조회
 
     // nickname과 일치하는 유저가 없을 경우
     if (thisUser === null) {
-      throw new Error('Password or username does not match.');
+      throw new Error('Password or userName does not match.');
     }
 
     // db에서 받은 유저 패스워드랑 일치하는지 검증
@@ -85,7 +85,7 @@ class AuthService {
 
     // password를 잘못 입력했을때
     if (!MatchPassword) {
-      throw new Error('Password or username does not match.');
+      throw new Error('Password or userName does not match.');
     }
     // 토큰이 없을때
     if (!refreshToken || !accessToken) {
@@ -102,13 +102,17 @@ class AuthService {
       .cookie('accessToken', newAccessToken, { httpOnly: true })
       .cookie('refreshToken', newRefreshToken, { httpOnly: true })
       .status(200)
-      .json({ message: 'Login successful!' });
+      .json({
+        message: 'Login successful!',
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      });
   }
 
   // 로그아웃
   async logout(res) {
-    res.clearCookie('accessToken', { httpOnly: false });
-    res.clearCookie('refreshToken', { httpOnly: false });
+    res.clearCookie('accessToken', { httpOnly: true });
+    res.clearCookie('refreshToken', { httpOnly: true });
     res.json({ message: 'Logout successful!' });
   }
 }
