@@ -6,7 +6,6 @@ const adminMiddleware = async (req, res, next) => {
 
     // admin인지 확인
     const adminCheck = await Users.findOne({ where: { userId } });
-    console.log(adminCheck.dataValues.is_admin);
     if (!adminCheck.dataValues.is_admin) {
       return res.status(401).json({ errorMessage: 'You are not an admin' });
     }

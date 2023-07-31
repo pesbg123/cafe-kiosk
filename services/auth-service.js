@@ -41,6 +41,10 @@ class AuthService {
     if (DuplicateuserName) {
       throw new Error('The userName is already in use.');
     }
+    // is_admin 데이터 유효성 검증
+    if (typeof is_admin !== 'boolean') {
+      throw new Error('Please enter the Boolean type as true or false');
+    }
     // 비밀번호 암호화
     const EncryptionPassword = await bcrypt.hash(password, saltRounds);
     // 유저를 저장하기 위해 createUser메서드 호출하는 동시에 변수에 할당

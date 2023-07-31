@@ -101,8 +101,6 @@ class ProductController {
       const message = await this.productService.checkProductQuantity(productId);
       res.status(200).json({ message: message.message });
     } catch (error) {
-      console.log(error);
-
       const errorResponse = {
         errorMessage: error.message,
       };
