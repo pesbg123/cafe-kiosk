@@ -18,15 +18,6 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      GuestId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Guests',
-          key: 'guestId',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
       orderState: {
         allowNull: false,
         type: Sequelize.BOOLEAN,

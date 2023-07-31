@@ -1,10 +1,8 @@
 const ProductRepository = require('../repositories/products-repository');
-const AuthRepository = require('../repositories/auth-repository');
 
 class ProductService {
   constructor() {
     this.productRepository = new ProductRepository();
-    this.authRepository = new AuthRepository();
   }
 
   // 상품 저장

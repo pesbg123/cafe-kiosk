@@ -13,11 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: 'userId',
         foreignKey: 'UserId',
       });
-      // Guests 모델과 N:1
-      this.belongsTo(models.Guests, {
-        targetKey: 'guestId',
-        foreignKey: 'GuestId',
-      });
       // OrderItems 모델과 1:N
       this.hasMany(models.OrderItems, {
         sourceKey: 'orderId',
@@ -38,15 +33,6 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: 'Users',
           key: 'userId',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      GuestId: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: 'Guests',
-          key: 'guestId',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',

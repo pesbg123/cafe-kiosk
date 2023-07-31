@@ -4,8 +4,8 @@ const app = express();
 require('dotenv').config();
 const PORT = process.env.PORT;
 
-const authRouter = require('./routes/auth.js');
-const productRouter = require('./routes/products.js');
+const authRouter = require('./routes/auth.routes.js');
+const productRouter = require('./routes/products.routes.js');
 
 app.use(express.json()); // json 파싱
 app.use(cookieParser()); // 쿠키 파싱

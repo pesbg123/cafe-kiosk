@@ -27,64 +27,61 @@ const refreshTokenPair = async (res, payload) => {
 const authMiddleware = async (req, res, next) => {
   const { accessToken, refreshToken } = req.cookies;
   // 액세스 토큰과 리프레시 토큰이 없는 경우
-  if (!accessToken) {
-    return res.status(400).json({
-      errorMessage: 'AccessToken does not exist Re-login is required.',
-    });
-  }
-  if (!refreshToken) {
-    return res.status(400).json({
-      errorMessage: 'RefreshToken does not exist Re-login is required.',
-    });
+  if (!accessToken || !refreshToken) {
+    return res
+      .status(401)
+      .json({ errorMessage: 'Unauthorized. Re-login is required.' });
   }
 
   try {
-    // 액세스 토큰이 만료된 경우
+    // 액세스 토큰 확인
     const decodedAccessToken = jwt.verify(accessToken, env.ACCESS_TOKEN_KEY);
-    // 사용자 인증
-    if (decodedAccessToken.hasOwnProperty('userId')) {
-      const user = await Users.findOne({
-        where: { userId: decodedAccessToken.userId },
-      });
+    const userId = decodedAccessToken.userId;
+    const user = await Users.findOne({ where: { userId } });
 
-      // 유효하지 않은 사용자인 경우
-      if (!user) {
-        return res.status(400).json({ errorMessage: 'Not a valid user.' });
-      }
-
-      res.locals.user = user;
-
-      return next();
-    } else {
-      return res
-        .status(400)
-        .json({ errorMessage: 'The AccessToken is invalid.' });
+    // 유효하지 않은 사용자인 경우
+    if (!user) {
+      return res.status(401).json({ errorMessage: 'Not a valid user.' });
     }
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
+
+    res.locals.user = user;
+    return next();
+  } catch (accessTokenError) {
+    if (accessTokenError.name === 'TokenExpiredError') {
       try {
+        // 리프레시 토큰 확인
         const decodedRefreshToken = jwt.verify(
           refreshToken,
           env.REFRESH_TOKEN_KEY
         );
+        const userId = decodedRefreshToken.userId;
+        const user = await Users.findOne({ where: { userId } });
 
-        if (decodedRefreshToken.hasOwnProperty('userId')) {
-          const newPayload = { userId: decodedRefreshToken.userId };
-          const user = await Users.findOne({
-            where: { userId: decodedRefreshToken.userId },
-          });
-          res.locals.user = user;
-          await refreshTokenPair(res, newPayload);
-          return next();
+        // 유효하지 않은 리프레시 토큰인 경우
+        if (!user) {
+          throw new Error('Invalid refresh token.');
         }
-      } catch (refreshError) {
-        res.locals.user = null;
-        res.locals.owner = null;
 
+        // 액세스 토큰과 리프레시 토큰 재생성
+        const newPayload = { userId };
+        res.locals.user = user;
+        await refreshTokenPair(res, newPayload);
+        return next();
+      } catch (refreshTokenError) {
+        res.locals.user = null;
         res.clearCookie('accessToken', { httpOnly: true });
         res.clearCookie('refreshToken', { httpOnly: true });
-        return res.status(401).json({ errorMessage: 'Re-login is required.' });
+        return res
+          .status(401)
+          .json({ errorMessage: 'Unauthorized. Re-login is required.' });
       }
+    } else {
+      res.locals.user = null;
+      res.clearCookie('accessToken', { httpOnly: true });
+      res.clearCookie('refreshToken', { httpOnly: true });
+      return res
+        .status(401)
+        .json({ errorMessage: 'Unauthorized. Re-login is required.' });
     }
   }
 };
