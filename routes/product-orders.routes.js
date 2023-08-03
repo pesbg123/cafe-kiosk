@@ -13,4 +13,12 @@ router.post(
   productOrderController.createProductOrder.bind(productOrderController)
 );
 
+// (admin) 발주 상태 수정
+router.patch(
+  '/productOrders/:productOrderId/changeState',
+  authMiddleware,
+  adminMiddleware,
+  productOrderController.updateProductOrder.bind(productOrderController)
+);
+
 module.exports = router;

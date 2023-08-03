@@ -23,7 +23,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      ProductOrderState: {
+      productOrderState: {
         allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: 0,
