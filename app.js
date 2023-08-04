@@ -7,12 +7,13 @@ const PORT = process.env.PORT;
 const authRouter = require('./routes/auth.routes.js');
 const productRouter = require('./routes/products.routes.js');
 const productOrderRouter = require('./routes/product-orders.routes.js');
+const orderRouter = require('./routes/orders.routes.js');
 
 app.use(express.json()); // json 파싱
 app.use(cookieParser()); // 쿠키 파싱
 
 // 라우터들을 가져옵니다.
-app.use('/api', [authRouter, productRouter, productOrderRouter]);
+app.use('/api', [authRouter, productRouter, productOrderRouter, orderRouter]);
 
 // 잘못된 API 경로로 요청이 왔을시 에러를 보냄
 app.use((req, res, next) => {
